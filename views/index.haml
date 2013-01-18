@@ -4,8 +4,24 @@
     %title amazeballs
     %link{href: 'main.css', media: 'screen', rel: 'stylesheet', type: 'text/css'}
 
+    %meta(content='width=device-width, height=device-height, user-scalable=no, initial-scale=0.96, maximum-scale=0.96, minimum-scale=0.96' name='viewport')
+    %meta(content='yes' name='apple-mobile-web-app-capable')
+    %meta(content='chrome=1' http-equiv='X-UA-Compatible')
+    %meta(content='on' http-equiv='cleartype')
+
   %body
     #app
       %h1 Amazeballs Playlist
+      #nav
+        -#%a#connect{href: '#'} Connect
+        #trackSelect
+          %label{for:'track_url'} Enter Track URL
+          %input#track_url
+          %button#add Add
+          %button#stop Stop All
+      %ul#list
     %script{src: 'http://connect.soundcloud.com/sdk.js'}
+    %script{src: 'selector.js', type: 'text/javascript'}
+    %script{src: 'playlist_manager.js', type: 'text/javascript'}
+    %script{src: 'player.js', type: 'text/javascript'}
     %script{src: 'main.js', type: 'text/javascript'}
