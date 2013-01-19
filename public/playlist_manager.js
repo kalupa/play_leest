@@ -1,4 +1,39 @@
-function PlaylistManager() {
+function PlaylistManager(player) {
+  // public
+  function addTrack(e) {
+    e.preventDefault();
+    var trackUrlInput = $('#track_url'),
+        trackUrl      = trackUrlInput.value,
+        playButton,
+        removeButton,
+        newTrack;
+    if ( trackUrl !== '' ) {
+      trackUrlInput.value = '';
+      SC.get('/resolve', { url: trackUrl }, function(track){
+        if (track.errors === undefined) {
+          newTrack     = $('#list').appendChild(renderTrack(track));
+          playButton   = newTrack.querySelector('.play_button');
+          removeButton = newTrack.querySelector('.remove_track');
+
+          playButton.addEventListener('click', player.playTrack);
+          removeButton.addEventListener('click', removeTrack);
+        }
+      });
+    }
+  }
+
+  function removeTrack(e){
+    e.preventDefault();
+    var trackEl = this.parentNode;
+    if (trackEl === player.currentTrackEl) {
+      player.currentTrack.stop();
+    }
+    trackEl.querySelector('.play_button').removeEventListener('click', player.playTrack);
+    trackEl.querySelector('.remove_track').removeEventListener('click', removeTrack);
+    trackEl.parentNode.removeChild(trackEl);
+  }
+
+  // private
   function renderTrack(track) {
     var htmlEl        = createEl('li'),
         moveUpButton,
@@ -26,8 +61,12 @@ function PlaylistManager() {
 
   function renderArtwork(track) {
     var artwork       = createEl('img');
+    var artwork_url   = track.artwork_url;
+    if (artwork_url === null) {
+      artwork_url = 'https://i1.sndcdn.com/avatars-000030524759-jtej49-t200x200.jpg?0c1a674';
+    }
     artwork.className = 'artwork';
-    artwork.src       = track.artwork_url;
+    artwork.src       = artwork_url;
     return artwork;
   }
   function renderPlayButton(track){
@@ -74,15 +113,16 @@ function PlaylistManager() {
         nextTrack,
         playlist;
     e.preventDefault();
-    console.log(e, this);
     thisTrack     = this.parentNode;
     nextTrack     = thisTrack.nextElementSibling;
-    nextNextTrack = nextTrack.nextElementSibling;
     playlist      = thisTrack.parentNode;
-    if (nextNextTrack !== null) {
-      playlist.insertBefore( thisTrack, nextNextTrack ); // there's no insertAfter.
-    } else if ( nextTrack !== null) {
-      playlist.appendChild(thisTrack); // we're at the end.
+    if (nextTrack !== null) {
+      nextNextTrack = nextTrack.nextElementSibling;
+      if (nextNextTrack !== null) {
+        playlist.insertBefore( thisTrack, nextNextTrack ); // there's no insertAfter.
+      } else {
+        playlist.appendChild(thisTrack); // we're at the end.
+      }
     }
   }
   function renderRemoveButton(){
@@ -95,6 +135,6 @@ function PlaylistManager() {
   }
 
   return {
-    renderTrack: renderTrack
+    addTrack: addTrack
   };
 }

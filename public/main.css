@@ -79,13 +79,17 @@ h1 {
   padding: 5px 0;
 }
 
-.track .artwork {
+.playlist_item .artwork {
   height: 40px;
   width:  40px;
   display: inline-block;
 }
-.track .title {
+.playlist_item .title {
   height: 40px;
   line-height: 40px;
   display: inline-block;
+}
+
+.current {
+  background-color: #FEFFDB;
 }
