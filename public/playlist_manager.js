@@ -9,16 +9,19 @@ function PlaylistManager(player) {
         newTrack;
     if ( trackUrl !== '' ) {
       trackUrlInput.value = '';
-      SC.get('/resolve', { url: trackUrl }, function(track){
-        if (track.errors === undefined) {
-          newTrack     = $('#list').appendChild(renderTrack(track));
-          playButton   = newTrack.querySelector('.play_button');
-          removeButton = newTrack.querySelector('.remove_track');
+      SC.get('/resolve', { url: trackUrl }, setupTrackAndEvents);
+    }
+  }
 
-          playButton.addEventListener('click', player.playTrack);
-          removeButton.addEventListener('click', removeTrack);
-        }
-      });
+  // private
+  function setupTrackAndEvents(track){
+    if (track.errors === undefined) {
+      newTrack     = $('#list').appendChild(renderTrack(track));
+      playButton   = newTrack.querySelector('.play_button');
+      removeButton = newTrack.querySelector('.remove_track');
+
+      playButton.addEventListener('click', player.playTrack);
+      removeButton.addEventListener('click', removeTrack);
     }
   }
 
@@ -28,64 +31,79 @@ function PlaylistManager(player) {
     if (trackEl === player.currentTrackEl) {
       player.currentTrack.stop();
     }
+    // remove listeners before they go out of scope
     trackEl.querySelector('.play_button').removeEventListener('click', player.playTrack);
     trackEl.querySelector('.remove_track').removeEventListener('click', removeTrack);
+    trackEl.querySelector('.move_up').removeEventListener('click', moveTrackUp);
+    trackEl.querySelector('.move_down').removeEventListener('click', moveTrackDown);
+
     trackEl.parentNode.removeChild(trackEl);
   }
 
-  // private
+
   function renderTrack(track) {
     var htmlEl        = createEl('li'),
         moveUpButton,
         removeButton;
 
-    htmlEl.className       = 'playlist_item ' + track.kind;
+    addClass(htmlEl, 'playlist_item ' + track.kind);
     htmlEl.dataset.trackId = track.id;
     htmlEl.id              = track.kind + '_' + track.id;
 
-    moveUpButton   = renderMoveUpButton();
-    moveDownButton = renderMoveDownButton();
-
     htmlEl.appendChild(renderArtwork(track));
-    htmlEl.appendChild(renderPlayButton(track));
-    htmlEl.appendChild(renderTrackTitle(track));
-    htmlEl.appendChild(moveUpButton);
-    htmlEl.appendChild(moveDownButton);
-    htmlEl.appendChild(renderRemoveButton());
+    htmlEl.appendChild(renderHeader(track));
+    htmlEl.appendChild(renderNav());
 
-    moveUpButton.addEventListener('click', moveTrackUp);
-    moveDownButton.addEventListener('click', moveTrackDown);
+    htmlEl.querySelector('.move_up').addEventListener('click', moveTrackUp);
+    htmlEl.querySelector('.move_down').addEventListener('click', moveTrackDown);
 
     return htmlEl;
   }
 
   function renderArtwork(track) {
-    var artwork       = createEl('img');
-    var artwork_url   = track.artwork_url;
-    if (artwork_url === null) {
-      artwork_url = 'https://i1.sndcdn.com/avatars-000030524759-jtej49-t200x200.jpg?0c1a674';
-    }
-    artwork.className = 'artwork';
-    artwork.src       = artwork_url;
+    var artwork     = createEl('div'),
+        img         = createEl('img'),
+        artwork_url = track.artwork_url;
+
+    addClass(artwork, 'artwork');
+    img.src           = artwork_url;
+
+    artwork.appendChild(img);
     return artwork;
   }
+  function renderHeader(track) {
+    var htmlEl = createEl('div');
+    addClass(htmlEl,'header');
+    htmlEl.appendChild(renderPlayButton(track));
+    htmlEl.appendChild(renderTrackTitle(track));
+    return htmlEl;
+  }
   function renderPlayButton(track){
-    var playButton       = createEl('a');
-    playButton.href      = '#';
-    playButton.className = 'play_button';
+    var playButton = createEl('button');
+    addClass(playButton,'play_button');
     playButton.appendChild(createText('Play'));
     return playButton;
   }
   function renderTrackTitle(track){
-    var title       = createEl('div');
-    title.className = 'title';
+    var title = createEl('div');
+    addClass(title, 'title');
     title.appendChild(createText(track.title));
     return title;
   }
+  function renderNav() {
+    var htmlEl     = createEl('div'),
+    moveUpButton   = renderMoveUpButton(),
+    moveDownButton = renderMoveDownButton();
+    addClass(htmlEl, 'nav');
+    htmlEl.appendChild(moveUpButton);
+    htmlEl.appendChild(moveDownButton);
+    htmlEl.appendChild(renderRemoveButton());
+    return htmlEl;
+  }
   function renderMoveUpButton() {
     var moveUp = createEl('a');
+    addClass(moveUp, 'move_up');
     moveUp.href = '#';
-    moveUp.className = 'move_up';
     moveUp.appendChild(createText('Up'));
     return moveUp;
   }
@@ -103,8 +121,8 @@ function PlaylistManager(player) {
   }
   function renderMoveDownButton() {
     var moveDown = createEl('a');
+    addClass(moveDown, 'move_down');
     moveDown.href = '#';
-    moveDown.className = 'move_down';
     moveDown.appendChild(createText('Down'));
     return moveDown;
   }
@@ -126,10 +144,10 @@ function PlaylistManager(player) {
     }
   }
   function renderRemoveButton(){
-    var removeButton       = createEl('a');
-    removeButton.href      = '#';
-    removeButton.className = 'remove_track';
-    removeButton.title     = 'Remove Track';
+    var removeButton   = createEl('a');
+    removeButton.href  = '#';
+    removeButton.title = 'Remove Track';
+    addClass(removeButton, 'remove_track');
     removeButton.appendChild(createText('X'));
     return removeButton;
   }
