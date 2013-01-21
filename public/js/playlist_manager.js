@@ -26,8 +26,8 @@ function PlaylistManager(player) {
   }
 
   function removeTrack(e){
-    e.preventDefault();
     var trackEl = this.parentNode;
+    e.preventDefault();
     if (trackEl === player.currentTrackEl) {
       player.currentTrack.stop();
     }
@@ -66,7 +66,7 @@ function PlaylistManager(player) {
         artwork_url = track.artwork_url;
 
     addClass(artwork, 'artwork');
-    img.src           = artwork_url;
+    img.src = artwork_url;
 
     artwork.appendChild(img);
     return artwork;
@@ -114,6 +114,7 @@ function PlaylistManager(player) {
     e.preventDefault();
     thisTrack = this.parentNode;
     prevTrack = thisTrack.previousElementSibling;
+
     if (prevTrack !== null) { // don't try to wrap
       playlist = thisTrack.parentNode;
       playlist.insertBefore( thisTrack, prevTrack );
@@ -131,9 +132,10 @@ function PlaylistManager(player) {
         nextTrack,
         playlist;
     e.preventDefault();
-    thisTrack     = this.parentNode;
-    nextTrack     = thisTrack.nextElementSibling;
-    playlist      = thisTrack.parentNode;
+    thisTrack = this.parentNode;
+    nextTrack = thisTrack.nextElementSibling;
+    playlist  = thisTrack.parentNode;
+
     if (nextTrack !== null) {
       nextNextTrack = nextTrack.nextElementSibling;
       if (nextNextTrack !== null) {
