@@ -64,7 +64,6 @@ h1 {
   background-color: #fff;
   height: 100%;
 }
-
 @media screen and (min-width: 550px) {
   #app {
     width: 66%;
@@ -72,7 +71,6 @@ h1 {
     margin: 0 auto;
   }
 }
-
 #app h1 {
   text-align: center;
   padding: 5px 0;
@@ -91,17 +89,17 @@ h1 {
   float: right;
 }
 
+#list {
+  padding-top: 5px;
+}
+#list:last-child {
+  border-bottom: 1px solid #ccc;
+}
 .playlist_item {
   position: relative;
   border-top: 1px solid #ccc;
   margin-top: 5px;
   padding: 5px 0;
-}
-#list {
-  padding: 5px 0;
-}
-#list:last-child {
-  border-bottom: 1px solid #ccc;
 }
 .playlist_item .artwork {
   background-repeat: none;
@@ -123,10 +121,6 @@ h1 {
   display: inline-block;
   left: 140px;
   height: 120px;
-}
-.playlist_item .title {
-  display: inline-block;
-  margin-top: 16px;
 }
 .playlist_item .play_button_container {
   display:block;
@@ -174,6 +168,10 @@ h1 {
   white-space: nowrap;
   width: 28px;
   -webkit-appearance: button;
+}
+.playlist_item .title {
+  display: inline-block;
+  margin-top: 16px;
 }
 .playlist_item .nav {
   display: inline-block;
@@ -238,8 +236,6 @@ h1 {
   text-shadow: none;
   vertical-align: baseline
   white-space: nowrap;
-}
-.playlist_item .nav .remove_sound{
 }
 
 .current {
