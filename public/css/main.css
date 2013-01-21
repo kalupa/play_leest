@@ -63,7 +63,6 @@ h1 {
 #app {
   background-color: #fff;
   height: 100%;
-  padding: 5px;
 }
 
 @media screen and (min-width: 550px) {
@@ -77,6 +76,21 @@ h1 {
 #app h1 {
   text-align: center;
   padding: 5px 0;
+}
+#nav {
+  padding: 5px;
+}
+.playlist_item {
+  position: relative;
+  border-top: 1px solid #ccc;
+  margin-top: 5px;
+  padding: 5px 0;
+}
+#list {
+  padding: 5px 0;
+}
+#list:last-child {
+  border-bottom: 1px solid #ccc;
 }
 
 .playlist_item .artwork {
@@ -93,8 +107,21 @@ h1 {
   height: 100%;
 }
 .playlist_item .header {
-  display: inline-block;
   max-width: 100%;
+  position: absolute;
+  top: 10px;
+  display: inline-block;
+  left: 140px;
+  height: 120px;
+}
+.playlist_item .title {
+  display: inline-block;
+  margin-top: 16px;
+}
+.playlist_item .play_button_container {
+  display:block;
+  float: left;
+  margin-right: 5px;
 }
 .playlist_item .play_button::before {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABnUlEQVR42qWUXShDYRjHd1hMa1YitOKCRmk3uJAoCokL5UrixkdcksiNFCG7UnIjuRLSLiTiQlyJEpFcyHytxOZj89XWWWd/f7Ky2jg751+/Oud933719D7vowEQSrpGRzJJLkkhWqL5F+CbcMJ4bG90obW+i9+1P/J4NUIBk2MVEEUfrAM2/jeTPKInghLhF8l4dJ0DzKrtGObEbq4VkSQSq0Sow/7OBII5O3WiKt/K9WpiInHRCgWM9JfhdzzPXvS0LXKvgZhJAhHkCIOkwf3kCJFKUgBz07vc6yAFxEhi5Ar1ODlcQLgc7DlQmDHIM+UklWjlCGMxP9OCSHHevbK1pniuhBjkCXOMhWwfPyLF7xextT4qV6hHlr7yT6Ek+XBz2Su35DQM9w0hUnzeWxztl8m9FIGYsbm2hXB58WxjZckUTdvoSDHub10hokBA4tq4ksZORlNNZ4hMFN18MXVKnp5AsrG8sIRg3t+OWL5Z6XCIIxY8OO0A47qf5eUY1IyvBExZS9kSH7iyt6sfsBRwEDTi+sISLFGFUD2fG4q5Dt/MKzYAAAAASUVORK5CYII=);
@@ -112,11 +139,11 @@ h1 {
   border: 1px solid rgb(225,225,225);
   border-color: rgba(255,102,0,.75) rgba(255,51,0,.25) rgba(255,17,0,.25);
   background-color: #f60;
-  border-radius: 50%;
   background-image: -webkit-linear-gradient(top,rgba(255,153,0,.6) 0%,rgba(255,102,0,.6) 40%,rgba(255,17,0,.6) 100%);
   background-image: -moz-linear-gradient(top,rgba(255,153,0,.6) 0%,rgba(255,102,0,.6) 40%,rgba(255,17,0,.6) 100%);
   background-image: -o-linear-gradient(top,rgba(255,153,0,.6) 0%,rgba(255,102,0,.6) 40%,rgba(255,17,0,.6) 100%);
   background-image: linear-gradient(top,rgba(255,153,0,.6) 0%,rgba(255,102,0,.6) 40%,rgba(255,17,0,.6) 100%);
+  border-radius: 50%;
   box-shadow: 0 0 2px rgba(255,51,0,.35),inset 0 -1px 3px rgba(255,51,0,.45),0 0 3px rgba(0,0,0,.15),inset 0 1px 0 rgba(102,51,0,.2),inset 0 2px 2px rgba(255,255,255,.25),inset 0 -2px 2px rgba(255,255,255,.2);
   box-sizing: border-box;
   cursor: pointer;
@@ -126,7 +153,7 @@ h1 {
   font-weight: 100;
   height: 28px;
   line-height: 42px;
-  margin: 1px 0 1px 1px;
+  margin: 10px 0 1px 1px;
   overflow: hidden;
   padding: 0;
   position: relative;
@@ -138,14 +165,71 @@ h1 {
   width: 28px;
   -webkit-appearance: button;
 }
-.playlist_item .title {
-  height: 40px;
-  line-height: 40px;
-  display: inline-block;
-}
-
 .playlist_item .nav {
   display: inline-block;
+  position: absolute;
+  top: 12px;
+  right: 10px;
+}
+.playlist_item .nav .move_up::before {
+  background-image: url(/icons/glyphicons_213_up_arrow.png);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  width: 20px;
+  height: 24px;
+  top: -2px;
+  left: -1px;
+  display: block;
+  position: absolute;
+  content: "";
+}
+.playlist_item .nav .move_down::before {
+  background-image: url(/icons/glyphicons_212_down_arrow.png);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  width: 20px;
+  height: 24px;
+  top: -2px;
+  left: -1px;
+  display: block;
+  position: absolute;
+  content: "";
+}
+.playlist_item .nav .remove_sound::before {
+  background-image: url(/icons/glyphicons_207_remove_2.png);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  width: 20px;
+  height: 24px;
+  top: -2px;
+  left: -1px;
+  display: block;
+  position: absolute;
+  content: "";
+}
+.playlist_item .nav .move_up,
+.playlist_item .nav .move_down,
+.playlist_item .nav .remove_sound{
+  border-color: rgba(255,102,0,.75) rgba(255,51,0,.25) rgba(255,17,0,.25);
+  background-color: #f60;
+  background-image: -webkit-linear-gradient(top,rgba(255,153,0,.6) 0%,rgba(255,102,0,.6) 40%,rgba(255,17,0,.6) 100%);
+  background-image: -moz-linear-gradient(top,rgba(255,153,0,.6) 0%,rgba(255,102,0,.6) 40%,rgba(255,17,0,.6) 100%);
+  background-image: -o-linear-gradient(top,rgba(255,153,0,.6) 0%,rgba(255,102,0,.6) 40%,rgba(255,17,0,.6) 100%);
+  background-image: linear-gradient(top,rgba(255,153,0,.6) 0%,rgba(255,102,0,.6) 40%,rgba(255,17,0,.6) 100%);
+  cursor: pointer;
+  width: 22px;
+  height: 24px;
+  text-indent: 30px;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  text-align: center;
+  text-indent: 30px;
+  text-shadow: none;
+  vertical-align: baseline
+  white-space: nowrap;
+}
+.playlist_item .nav .remove_sound{
 }
 
 .current {

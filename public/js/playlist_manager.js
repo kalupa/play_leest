@@ -90,10 +90,13 @@ function PlaylistManager(player) {
     return htmlEl;
   }
   function renderPlayButton(sound){
-    var playButton = createEl('button');
+    var htmlEl = createEl('div'),
+        playButton = createEl('button');
+    addClass(htmlEl, 'play_button_container');
     addClass(playButton,'play_button');
     playButton.appendChild(createText('Play'));
-    return playButton;
+    htmlEl.appendChild(playButton);
+    return htmlEl;
   }
   function renderSoundTitle(sound){
     var title = createEl('div');
@@ -113,9 +116,8 @@ function PlaylistManager(player) {
     return htmlEl;
   }
   function renderMoveUpButton() {
-    var moveUp = createEl('a');
+    var moveUp = createEl('button');
     addClass(moveUp, 'move_up');
-    moveUp.href = '#';
     moveUp.appendChild(createText('Up'));
     return moveUp;
   }
@@ -135,9 +137,8 @@ function PlaylistManager(player) {
     }
   }
   function renderMoveDownButton() {
-    var moveDown = createEl('a');
+    var moveDown = createEl('button');
     addClass(moveDown, 'move_down');
-    moveDown.href = '#';
     moveDown.appendChild(createText('Down'));
     return moveDown;
   }
@@ -162,11 +163,9 @@ function PlaylistManager(player) {
     }
   }
   function renderRemoveButton(){
-    var removeButton = createEl('a');
-    removeButton.href = '#';
-    removeButton.title = 'Remove Sound';
+    var removeButton = createEl('button');
     addClass(removeButton, 'remove_sound');
-    removeButton.appendChild(createText('X'));
+    removeButton.appendChild(createText('Remove'));
     return removeButton;
   }
 

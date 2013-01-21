@@ -27,10 +27,10 @@ function Player(initValues) {
     }
   };
 
-  /** Play sound attached to the current event grandparent. */
+  /** Play sound attached to the current event great-grandparent. */
   /* FIXME: this is very DOM dependent */
   this.playSound = function(e){
-    var soundEl = this.parentNode.parentNode,
+    var soundEl = this.parentNode.parentNode.parentNode,
         soundId = soundEl.dataset.soundId;
     e.preventDefault();
 
