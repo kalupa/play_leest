@@ -1,69 +1,79 @@
+/**
+  Manages a playlist
+  @constructor
+  @param {Player} player - instance of a SoundCloud player
+  */
 function PlaylistManager(player) {
-  // public
-  function addTrack(e) {
-    e.preventDefault();
-    var trackUrlInput = $('#track_url'),
-        trackUrl      = trackUrlInput.value,
+  var _self = this;
+
+  /** Adds a SoundCloud sound URL to the queue */
+  this.addSoundEvent = function(e) {
+    var soundUrlInput = $('#sound_url'),
+        soundUrl = soundUrlInput.value,
         playButton,
         removeButton,
-        newTrack;
-    if ( trackUrl !== '' ) {
-      trackUrlInput.value = '';
-      SC.get('/resolve', { url: trackUrl }, setupTrackAndEvents);
-    }
-  }
-
-  // private
-  function setupTrackAndEvents(track){
-    if (track.errors === undefined) {
-      newTrack     = $('#list').appendChild(renderTrack(track));
-      playButton   = newTrack.querySelector('.play_button');
-      removeButton = newTrack.querySelector('.remove_track');
-
-      playButton.addEventListener('click', player.playTrack);
-      removeButton.addEventListener('click', removeTrack);
-    }
-  }
-
-  function removeTrack(e){
-    var trackEl = this.parentNode;
+        newsound;
     e.preventDefault();
-    if (trackEl === player.currentTrackEl) {
-      player.currentTrack.stop();
+    if ( soundUrl !== '' ) {
+      soundUrlInput.value = '';
+      SC.get('/resolve', { url: soundUrl }, _self.addSound);
+    }
+  };
+
+  /** Creates DOM objects and attaches events for a new sound element */
+  this.addSound = function(sound){
+    if ( !sound.errors ) {
+      newSound = $('#list').appendChild(renderSound(sound));
+      playButton = newSound.querySelector('.play_button');
+      removeButton = newSound.querySelector('.remove_sound');
+
+      playButton.addEventListener('click', player.playSound);
+      removeButton.addEventListener('click', removeSound);
+    }
+  };
+
+  /** Removes the sound at the event grandparent. */
+  /* FIXME: DOM dependency */
+  function removeSound(e){
+    var soundEl = this.parentNode.parentNode;
+    e.preventDefault();
+    if ( soundEl === player.currentSoundEl ) {
+      player.currentSound.stop();
     }
     // remove listeners before they go out of scope
-    trackEl.querySelector('.play_button').removeEventListener('click', player.playTrack);
-    trackEl.querySelector('.remove_track').removeEventListener('click', removeTrack);
-    trackEl.querySelector('.move_up').removeEventListener('click', moveTrackUp);
-    trackEl.querySelector('.move_down').removeEventListener('click', moveTrackDown);
+    soundEl.querySelector('.play_button').removeEventListener('click', player.playSound);
+    soundEl.querySelector('.remove_sound').removeEventListener('click', removeSound);
+    soundEl.querySelector('.move_up').removeEventListener('click', moveSoundUp);
+    soundEl.querySelector('.move_down').removeEventListener('click', moveSoundDown);
 
-    trackEl.parentNode.removeChild(trackEl);
+    soundEl.parentNode.removeChild(soundEl);
   }
 
-
-  function renderTrack(track) {
-    var htmlEl        = createEl('li'),
+  /** Creates all the DOM nodes for representing a sound */
+  function renderSound(sound) {
+    var htmlEl = createEl('li'),
         moveUpButton,
         removeButton;
 
-    addClass(htmlEl, 'playlist_item ' + track.kind);
-    htmlEl.dataset.trackId = track.id;
-    htmlEl.id              = track.kind + '_' + track.id;
+    addClass(htmlEl, 'playlist_item ' + sound.kind);
+    htmlEl.dataset.soundId = sound.id;
+    htmlEl.id = 'sc_' + sound.kind + '_' + sound.id;
 
-    htmlEl.appendChild(renderArtwork(track));
-    htmlEl.appendChild(renderHeader(track));
+    htmlEl.appendChild(renderArtwork(sound));
+    htmlEl.appendChild(renderHeader(sound));
     htmlEl.appendChild(renderNav());
 
-    htmlEl.querySelector('.move_up').addEventListener('click', moveTrackUp);
-    htmlEl.querySelector('.move_down').addEventListener('click', moveTrackDown);
+    htmlEl.querySelector('.move_up').addEventListener('click', moveSoundUp);
+    htmlEl.querySelector('.move_down').addEventListener('click', moveSoundDown);
 
     return htmlEl;
   }
 
-  function renderArtwork(track) {
-    var artwork     = createEl('div'),
-        img         = createEl('img'),
-        artwork_url = track.artwork_url;
+  /** Renders the artwork DOM node */
+  function renderArtwork(sound) {
+    var artwork = createEl('div'),
+        img = createEl('img'),
+        artwork_url = sound.artwork_url;
 
     addClass(artwork, 'artwork');
     img.src = artwork_url;
@@ -71,29 +81,31 @@ function PlaylistManager(player) {
     artwork.appendChild(img);
     return artwork;
   }
-  function renderHeader(track) {
+  /** Renders the sound header */
+  function renderHeader(sound) {
     var htmlEl = createEl('div');
     addClass(htmlEl,'header');
-    htmlEl.appendChild(renderPlayButton(track));
-    htmlEl.appendChild(renderTrackTitle(track));
+    htmlEl.appendChild(renderPlayButton(sound));
+    htmlEl.appendChild(renderSoundTitle(sound));
     return htmlEl;
   }
-  function renderPlayButton(track){
+  function renderPlayButton(sound){
     var playButton = createEl('button');
     addClass(playButton,'play_button');
     playButton.appendChild(createText('Play'));
     return playButton;
   }
-  function renderTrackTitle(track){
+  function renderSoundTitle(sound){
     var title = createEl('div');
     addClass(title, 'title');
-    title.appendChild(createText(track.title));
+    title.appendChild(createText(sound.title));
     return title;
   }
+  /** Renders the sound navigation DOM nodes. */
   function renderNav() {
-    var htmlEl     = createEl('div'),
-    moveUpButton   = renderMoveUpButton(),
-    moveDownButton = renderMoveDownButton();
+    var htmlEl = createEl('div'),
+        moveUpButton = renderMoveUpButton(),
+        moveDownButton = renderMoveDownButton();
     addClass(htmlEl, 'nav');
     htmlEl.appendChild(moveUpButton);
     htmlEl.appendChild(moveDownButton);
@@ -107,17 +119,19 @@ function PlaylistManager(player) {
     moveUp.appendChild(createText('Up'));
     return moveUp;
   }
-  function moveTrackUp(e) {
-    var thisTrack,
-        prevTrack,
+  /** Moves the sound at the event grandparent up by one */
+  /* FIXME: DOM dependency */
+  function moveSoundUp(e) {
+    var thisSound,
+        prevSound,
         playlist;
     e.preventDefault();
-    thisTrack = this.parentNode;
-    prevTrack = thisTrack.previousElementSibling;
+    thisSound = this.parentNode.parentNode;
+    prevSound = thisSound.previousElementSibling;
 
-    if (prevTrack !== null) { // don't try to wrap
-      playlist = thisTrack.parentNode;
-      playlist.insertBefore( thisTrack, prevTrack );
+    if ( prevSound ) { // don't try to wrap
+      playlist = thisSound.parentNode;
+      playlist.insertBefore( thisSound, prevSound );
     }
   }
   function renderMoveDownButton() {
@@ -127,34 +141,33 @@ function PlaylistManager(player) {
     moveDown.appendChild(createText('Down'));
     return moveDown;
   }
-  function moveTrackDown(e) {
-    var thisTrack,
-        nextTrack,
+  /** Moves the sound at the event grandparent down by one */
+  /* FIXME: DOM dependency */
+  function moveSoundDown(e) {
+    var thisSound,
+        nextSound,
         playlist;
     e.preventDefault();
-    thisTrack = this.parentNode;
-    nextTrack = thisTrack.nextElementSibling;
-    playlist  = thisTrack.parentNode;
+    thisSound = this.parentNode.parentNode;
+    nextSound = thisSound.nextElementSibling;
+    playlist = thisSound.parentNode;
 
-    if (nextTrack !== null) {
-      nextNextTrack = nextTrack.nextElementSibling;
-      if (nextNextTrack !== null) {
-        playlist.insertBefore( thisTrack, nextNextTrack ); // there's no insertAfter.
+    if ( nextSound ) {
+      nextNextSound = nextSound.nextElementSibling;
+      if ( nextNextSound ) {
+        playlist.insertBefore( thisSound, nextNextSound ); // there's no insertAfter.
       } else {
-        playlist.appendChild(thisTrack); // we're at the end.
+        playlist.appendChild(thisSound); // we're at the end.
       }
     }
   }
   function renderRemoveButton(){
-    var removeButton   = createEl('a');
-    removeButton.href  = '#';
-    removeButton.title = 'Remove Track';
-    addClass(removeButton, 'remove_track');
+    var removeButton = createEl('a');
+    removeButton.href = '#';
+    removeButton.title = 'Remove Sound';
+    addClass(removeButton, 'remove_sound');
     removeButton.appendChild(createText('X'));
     return removeButton;
   }
 
-  return {
-    addTrack: addTrack
-  };
 }

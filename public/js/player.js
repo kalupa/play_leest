@@ -1,71 +1,67 @@
-function Player() {
-  // instance
-  var currentTrack,
-      currentTrackEl,
-      playing,
-      initValues = {
-        client_id:    '97c9ab904f4aeadba33c8efc1c967b08',
-        redirect_uri: 'http://localhost:9292/connected'
-      };
+/**
+  SoundCloud player interface
+  @constructor */
+function Player(initValues) {
+  var _self = this;
 
-  // public
-  function stopAll(e) {
+  /** setup SoundCloud sdk object */
+  this.load = function(){
+    SC.initialize(initValues);
+  };
+
+  /** Kill currently playing sound */
+  this.stopAll = function(e) {
     var items;
-    if (e!==null) {
+    if ( e ) { // only preventDefault if stopAll is called by an event
       e.preventDefault();
     }
-    if ( currentTrack !== undefined ) {
+    if ( _self.currentSound ) {
       items = document.querySelectorAll('.playlist_item');
-      if ( items.length > 0 ) {
+      if ( items.length ) {
         for (var i in items){
           removeClass(items[i], 'current');
         }
       }
-      currentTrack.stop();
-      currentTrack = void 0;
+      _self.currentSound.stop();
+      _self.currentSound = undefined;
     }
-  }
+  };
 
-  function playTrack(e){
+  /** Play sound attached to the current event grandparent. */
+  /* FIXME: this is very DOM dependent */
+  this.playSound = function(e){
+    var soundEl = this.parentNode.parentNode,
+        soundId = soundEl.dataset.soundId;
     e.preventDefault();
-    var trackEl = this.parentNode,
-        trackId = trackEl.dataset.trackId;
-    if ( trackEl !== currentTrackEl ) {
-      SC.stream('/tracks/' + trackId, function(sound) {
-        updateCurrent(sound, trackEl);
-        addClass(trackEl, 'current');
-        sound.play({
-          onfinish: function() {
-            removeClass(trackEl, 'current');
-            playNextTrack(trackEl.nextElementSibling);
-          }
-        });
+
+    console.log(soundEl);
+
+    if ( soundEl !== _self.currentSoundEl ) {
+      if ( _self.currentSound ) {
+        _self.currentSound.stop();
+      }
+      SC.stream('/tracks/' + soundId, streamSound);
+    }
+    //this only needs to be accessed by playSound()
+    function streamSound(sound) {
+      _self.currentSound = sound;
+      _self.currentSoundEl = soundEl;
+      addClass(soundEl, 'current');
+      sound.play({
+        onfinish: function _onfinish() {
+          removeClass(soundEl, 'current');
+          playNextSound(soundEl.nextElementSibling);
+        }
       });
     }
-  }
+  };
 
-  // private
-  function loadPage(){
-    SC.initialize(initValues);
-  }
-  document.addEventListener('DOMContentLoaded', loadPage);
-
-  function updateCurrent(sound, trackEl) {
-    currentTrack   = sound;
-    currentTrackEl = trackEl;
-  }
-
-  function playNextTrack(trackEl) {
-    if (trackEl !== null) {
-      trackEl.querySelector('.play_button').click();
+  /** Play the next sound in the queue */
+  /* uses the next element */
+  function playNextSound(soundEl) {
+    if ( soundEl ) {
+      soundEl.querySelector('.play_button').click();
     }
   }
-
-  return {
-    playTrack: playTrack,
-    stopAll:  stopAll,
-    currentTrack: currentTrack,
-    currentTrackEl: currentTrackEl
-  };
 
 }
