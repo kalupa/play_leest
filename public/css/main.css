@@ -80,6 +80,17 @@ h1 {
 #nav {
   padding: 5px;
 }
+#sound_url {
+  width: 50%;
+}
+#button_container {
+  display: inline-block;
+}
+#footer {
+  padding: 5px;
+  float: right;
+}
+
 .playlist_item {
   position: relative;
   border-top: 1px solid #ccc;
@@ -92,7 +103,6 @@ h1 {
 #list:last-child {
   border-bottom: 1px solid #ccc;
 }
-
 .playlist_item .artwork {
   background-repeat: none;
   background-position: 50% 50%;
@@ -168,7 +178,7 @@ h1 {
 .playlist_item .nav {
   display: inline-block;
   position: absolute;
-  top: 12px;
+  top: 15px;
   right: 10px;
 }
 .playlist_item .nav .move_up::before {

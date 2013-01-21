@@ -11,13 +11,17 @@
 
   %body
     #app
-      %h1 Amazeballs Playlist
+      %h1 Playlist
+      #footer
+        Icons by
+        %a{href: 'http://glyphicons.com/'} Glypicons
       #nav
-        #soundSelect
+        #sound_select
           %label{for:'sound_url'} Enter sound URL
           %input#sound_url
-          %button#add Add
-          %button#stop Stop All
+          #button_container
+            %button#add Add
+            %button#stop Stop All
       %ul#list
 
     %script{src: 'http://connect.soundcloud.com/sdk.js'}
