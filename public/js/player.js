@@ -24,6 +24,7 @@ function Player(initValues) {
       }
       _self.currentSound.stop();
       _self.currentSound = undefined;
+      _self.currentSoundEl = undefined;
     }
   };
 
@@ -31,15 +32,23 @@ function Player(initValues) {
   /* FIXME: this is very DOM dependent */
   this.playSound = function(e){
     var soundEl = this.parentNode.parentNode.parentNode,
-        soundId = soundEl.dataset.soundId;
-    e.preventDefault();
+        soundId = soundEl.dataset.soundId,
+        that = this;
 
-    console.log(soundEl);
+  e.preventDefault();
 
-    if ( soundEl !== _self.currentSoundEl ) {
-      if ( _self.currentSound ) {
+    if ( _self.currentSound ) {
+      removeClass(_self.currentSoundEl.querySelector('.play_button'), 'pause');
+      if ( _self.currentSound.paused ){
+        addClass(soundEl, 'current');
+        addClass(that, 'pause');
+        this.removeEventListener('click', _self.playSound);
+        this.addEventListener('click', _self.pauseSound);
+        _self.currentSound.play();
+      } else if ( _self.currentSound.playState && soundEl !== _self.currentSoundEl) {
         _self.currentSound.stop();
       }
+    } else {
       SC.stream('/tracks/' + soundId, streamSound);
     }
     //this only needs to be accessed by playSound()
@@ -47,13 +56,35 @@ function Player(initValues) {
       _self.currentSound = sound;
       _self.currentSoundEl = soundEl;
       addClass(soundEl, 'current');
+      addClass(that, 'pause');
+      that.removeEventListener('click', _self.playSound);
+      that.addEventListener('click', _self.pauseSound);
       sound.play({
         onfinish: function _onfinish() {
           removeClass(soundEl, 'current');
-          playNextSound(soundEl.nextElementSibling);
+          removeClass(that, 'pause');
+          that.removeEventListener('click', _self.pauseSound);
+          that.addEventListener('click', _self.playSound);
+          if ( soundEl.nextElementSibling ) {
+            playNextSound(soundEl.nextElementSibling);
+          } else {
+            _self.stopAll();
+          }
         }
       });
     }
+  };
+
+  /** Pause this sound playback */
+  this.pauseSound = function(e) {
+    var soundEl = this.parentNode.parentNode.parentNode,
+        soundId = soundEl.dataset.soundId;
+
+    e.preventDefault();
+    removeClass(this, 'pause');
+    this.addEventListener('click', _self.playSound);
+    this.removeEventListener('click', _self.pauseSound);
+    _self.currentSound.pause();
   };
 
   /** Play the next sound in the queue */

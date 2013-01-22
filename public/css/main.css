@@ -138,6 +138,17 @@ h1 {
   content: "";
   background-repeat: no-repeat;
 }
+.playlist_item .pause::before {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAWElEQVR42u2MMQoAIQwE7fOCa7f3V77lvp1LwEpdCGhxQgIDYWCnqOpRZvkUMWDUDtwxHwnCaMbr9B/MR4JVh3PHfAYzmMHfBrEYgvlIUBZDYZ4EN7gu+AGUOJJJchR7SwAAAABJRU5ErkJggg==);
+  width: 20px;
+  height: 20px;
+  top: 3px;
+  left: 3px;
+  display: block;
+  position: absolute;
+  content: "";
+  background-repeat: no-repeat;
+}
 .playlist_item .play_button {
   border-top-width: 0;
   border: 1px solid rgb(225,225,225);
