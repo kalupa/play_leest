@@ -3,10 +3,8 @@ play_leest
 
 ###TODO
 * refactor to use jQuery/zepto
-* drag and drop re-order
 * refactor to use requirejs
-* save list
+* decouple DOM element creation
 * add testing on non-DOM-coupled units
-
-###KNOWN ISSUES
-* cannot play sound more than once without reloading
+* drag and drop re-order
+* save queue
