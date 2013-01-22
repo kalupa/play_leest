@@ -1,6 +1,9 @@
 /**
   SoundCloud player interface
-  @constructor */
+  @constructor
+  @param {Object} initValues - sdk initialization values
+
+*/
 function Player(initValues) {
   var _self = this;
 
