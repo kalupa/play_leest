@@ -14,41 +14,37 @@ function Player(initValues) {
 
   /** Kill currently playing sound */
   this.stopAll = function(e) {
-    var items;
     if ( e ) { // only preventDefault if stopAll is called by an event
       e.preventDefault();
     }
     if ( _self.currentSound ) {
-      items = document.querySelectorAll('.playlist_item');
-      if ( items.length ) {
-        for (var i in items){
-          removeClass(items[i], 'current');
-        }
-      }
+      $('.playlist_item').each(removeAllCurrent);
+
       _self.currentSound.stop();
       _self.currentSound = undefined;
-      _self.currentSoundEl = undefined;
+      _self.$currentSoundEl = undefined;
+    }
+    function removeAllCurrent() {
+      $( this ).removeClass('current');
     }
   };
 
   /** Play sound attached to the current event great-grandparent. */
   /* FIXME: this is very DOM dependent */
   this.playSound = function(e){
-    var soundEl = this.parentNode.parentNode.parentNode,
-        soundId = soundEl.dataset.soundId,
-        that = this;
+    var $soundEl = $( this ).parents().eq(2),//this.parentNode.parentNode.parentNode,
+        soundId = $soundEl.data('sound-id'),
+        $self = $( this );
 
   e.preventDefault();
 
     if ( _self.currentSound ) {
-      removeClass(_self.currentSoundEl.querySelector('.play_button'), 'pause');
+      $('.play_button').removeClass('pause');
       if ( _self.currentSound.paused ){
-        addClass(soundEl, 'current');
-        addClass(that, 'pause');
-        this.removeEventListener('click', _self.playSound);
-        this.addEventListener('click', _self.pauseSound);
+        $soundEl.addClass('current');
+        $( this ).addClass('pause').off().on('click', _self.pauseSound);
         _self.currentSound.play();
-      } else if ( _self.currentSound.playState && soundEl !== _self.currentSoundEl) {
+      } else if ( _self.currentSound.playState && $soundEl !== _self.$currentSoundEl) {
         _self.currentSound.stop();
       }
     } else {
@@ -57,19 +53,15 @@ function Player(initValues) {
     //this only needs to be accessed by playSound()
     function streamSound(sound) {
       _self.currentSound = sound;
-      _self.currentSoundEl = soundEl;
-      addClass(soundEl, 'current');
-      addClass(that, 'pause');
-      that.removeEventListener('click', _self.playSound);
-      that.addEventListener('click', _self.pauseSound);
+      _self.$currentSoundEl = $soundEl;
+      $soundEl.addClass('current');
+      $self.addClass('pause').off().on('click', _self.pauseSound);
       sound.play({
         onfinish: function _onfinish() {
-          removeClass(soundEl, 'current');
-          removeClass(that, 'pause');
-          that.removeEventListener('click', _self.pauseSound);
-          that.addEventListener('click', _self.playSound);
-          if ( soundEl.nextElementSibling ) {
-            playNextSound(soundEl.nextElementSibling);
+          $soundEl.addClass('current');
+          $self.removeClass('pause').off().on('click', _self.playSound);
+          if ( $soundEl.next() ) {
+            $soundEl.click();
           } else {
             _self.stopAll();
           }
@@ -80,22 +72,9 @@ function Player(initValues) {
 
   /** Pause this sound playback */
   this.pauseSound = function(e) {
-    var soundEl = this.parentNode.parentNode.parentNode,
-        soundId = soundEl.dataset.soundId;
-
     e.preventDefault();
-    removeClass(this, 'pause');
-    this.addEventListener('click', _self.playSound);
-    this.removeEventListener('click', _self.pauseSound);
+    $( this ).removeClass('pause').off().on('click', _self.playSound);
     _self.currentSound.pause();
   };
-
-  /** Play the next sound in the queue */
-  /* uses the next element */
-  function playNextSound(soundEl) {
-    if ( soundEl ) {
-      soundEl.querySelector('.play_button').click();
-    }
-  }
 
 }

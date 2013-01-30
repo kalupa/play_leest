@@ -8,165 +8,94 @@ function PlaylistManager(player) {
 
   /** Adds a SoundCloud sound URL to the queue */
   this.addSoundEvent = function(e) {
-    var soundUrlInput = $('#sound_url'),
-        soundUrl = soundUrlInput.value,
-        playButton,
-        removeButton,
-        newsound;
     e.preventDefault();
-    if ( soundUrl !== '' ) {
-      soundUrlInput.value = '';
-      SC.get('/resolve', { url: soundUrl }, _self.addSound);
-    }
+    $('#sound_url').val(function(idx, soundUrl) {
+      if ( soundUrl !== '' ) {
+        SC.get('/resolve', { url: soundUrl }, _self.addSound);
+        return '';
+      }
+      return soundUrl;
+    });
+    return this;
   };
 
   /** Creates DOM objects and attaches events for a new sound element */
   this.addSound = function(sound){
     if ( !sound.errors ) {
-      newSound = $('#list').appendChild(renderSound(sound));
-      playButton = newSound.querySelector('.play_button');
-      removeButton = newSound.querySelector('.remove_sound');
-
-      playButton.addEventListener('click', player.playSound);
-      removeButton.addEventListener('click', removeSound);
+      $newSound = $('#list').append(renderSound(sound));
+      $newSound.find('.play_button').eq(0).on('click', player.playSound);
+      $newSound.find('.remove_sound').eq(0).on('click', removeSound);
     }
   };
+
+  /** Creates all the DOM nodes for representing a sound */
+  function renderSound(sound) {
+    var $htmlEl = $('<li></li>');
+
+    $htmlEl.addClass('playlist_item ' + sound.kind).
+      data('sound-id', sound.id).
+      attr( {'id': 'sc_' + sound.kind + '_' + sound.id } ).
+      append('<div><img src="' + sound.artwork_url + '"></div>').
+      append(renderHeader(sound)).
+      append(renderNav());
+
+    $htmlEl.find('.move_up').eq(0).on('click', moveSoundUp);
+    $htmlEl.find('.move_down').eq(0).on('click', moveSoundDown);
+
+    return $htmlEl;
+  }
 
   /** Removes the sound at the event grandparent. */
   /* FIXME: DOM dependency */
   function removeSound(e){
-    var soundEl = this.parentNode.parentNode;
     e.preventDefault();
-    if ( soundEl === player.currentSoundEl ) {
+    var $thisSound = $( this ).parents().eq(1);
+    if ( $thisSound === player.$currentSoundEl ) {
       player.currentSound.stop();
     }
-    // remove listeners before they go out of scope
-    soundEl.querySelector('.play_button').removeEventListener('click', player.playSound);
-    soundEl.querySelector('.remove_sound').removeEventListener('click', removeSound);
-    soundEl.querySelector('.move_up').removeEventListener('click', moveSoundUp);
-    soundEl.querySelector('.move_down').removeEventListener('click', moveSoundDown);
-
-    soundEl.parentNode.removeChild(soundEl);
+   $thisSound.remove();
+   return this;
   }
 
-  /** Creates all the DOM nodes for representing a sound */
-  function renderSound(sound) {
-    var htmlEl = createEl('li'),
-        moveUpButton,
-        removeButton;
-
-    addClass(htmlEl, 'playlist_item ' + sound.kind);
-    htmlEl.dataset.soundId = sound.id;
-    htmlEl.id = 'sc_' + sound.kind + '_' + sound.id;
-
-    htmlEl.appendChild(renderArtwork(sound));
-    htmlEl.appendChild(renderHeader(sound));
-    htmlEl.appendChild(renderNav());
-
-    htmlEl.querySelector('.move_up').addEventListener('click', moveSoundUp);
-    htmlEl.querySelector('.move_down').addEventListener('click', moveSoundDown);
-
-    return htmlEl;
-  }
-
-  /** Renders the artwork DOM node */
-  function renderArtwork(sound) {
-    var artwork = createEl('div'),
-        img = createEl('img'),
-        artwork_url = sound.artwork_url;
-
-    addClass(artwork, 'artwork');
-    img.src = artwork_url;
-
-    artwork.appendChild(img);
-    return artwork;
-  }
   /** Renders the sound header */
   function renderHeader(sound) {
-    var htmlEl = createEl('div');
-    addClass(htmlEl,'header');
-    htmlEl.appendChild(renderPlayButton(sound));
-    htmlEl.appendChild(renderSoundTitle(sound));
-    return htmlEl;
-  }
-  function renderPlayButton(sound){
-    var htmlEl = createEl('div'),
-        playButton = createEl('button');
-    addClass(htmlEl, 'play_button_container');
-    addClass(playButton,'play_button');
-    playButton.appendChild(createText('Play'));
-    htmlEl.appendChild(playButton);
-    return htmlEl;
-  }
-  function renderSoundTitle(sound){
-    var title = createEl('div');
-    addClass(title, 'title');
-    title.appendChild(createText(sound.title));
-    return title;
+    var $htmlEl = $('<div class="header"></div>');
+    $htmlEl.
+      append($('<div class="play_button_container"><button class="play_button">Play</button>')).
+      append($('<div class="title">' + sound.title + '</div>'));
+    return $htmlEl;
   }
   /** Renders the sound navigation DOM nodes. */
   function renderNav() {
-    var htmlEl = createEl('div'),
-        moveUpButton = renderMoveUpButton(),
-        moveDownButton = renderMoveDownButton();
-    addClass(htmlEl, 'nav');
-    htmlEl.appendChild(moveUpButton);
-    htmlEl.appendChild(moveDownButton);
-    htmlEl.appendChild(renderRemoveButton());
-    return htmlEl;
-  }
-  function renderMoveUpButton() {
-    var moveUp = createEl('button');
-    addClass(moveUp, 'move_up');
-    moveUp.appendChild(createText('Up'));
-    return moveUp;
+    var $htmlEl = $('<div class="nav"></div>');
+    $htmlEl.
+      append($('<button class="move_up">Up</button>')).
+      append($('<button class="move_down">Down</button>')).
+      append($('<button class="remove_sound">Remove</button>'));
+    return $htmlEl;
   }
   /** Moves the sound at the event grandparent up by one */
   /* FIXME: DOM dependency */
   function moveSoundUp(e) {
-    var thisSound,
-        prevSound,
-        playlist;
     e.preventDefault();
-    thisSound = this.parentNode.parentNode;
-    prevSound = thisSound.previousElementSibling;
+    var $thisSound = $( this ).parents().eq(1),
+        $prevSound = $thisSound.prev();
 
-    if ( prevSound ) { // don't try to wrap
-      playlist = thisSound.parentNode;
-      playlist.insertBefore( thisSound, prevSound );
+    if ( $prevSound ) { // don't try to wrap
+      $prevSound.insertBefore( $thisSound );
     }
-  }
-  function renderMoveDownButton() {
-    var moveDown = createEl('button');
-    addClass(moveDown, 'move_down');
-    moveDown.appendChild(createText('Down'));
-    return moveDown;
+    return this;
   }
   /** Moves the sound at the event grandparent down by one */
   /* FIXME: DOM dependency */
   function moveSoundDown(e) {
-    var thisSound,
-        nextSound,
-        playlist;
     e.preventDefault();
-    thisSound = this.parentNode.parentNode;
-    nextSound = thisSound.nextElementSibling;
-    playlist = thisSound.parentNode;
+    var $thisSound = $( this ).parents().eq(1),
+        $nextSound = $thisSound.next();
 
-    if ( nextSound ) {
-      nextNextSound = nextSound.nextElementSibling;
-      if ( nextNextSound ) {
-        playlist.insertBefore( thisSound, nextNextSound ); // there's no insertAfter.
-      } else {
-        playlist.appendChild(thisSound); // we're at the end.
-      }
+    if ( $nextSound ) {
+      $nextSound.insertAfter( $thisSound );
     }
+    return this;
   }
-  function renderRemoveButton(){
-    var removeButton = createEl('button');
-    addClass(removeButton, 'remove_sound');
-    removeButton.appendChild(createText('Remove'));
-    return removeButton;
-  }
-
 }
