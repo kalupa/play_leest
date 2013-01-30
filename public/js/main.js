@@ -1,8 +1,7 @@
 (function(){
   //'use strict';
   var SC_CONFIG =  {
-        client_id:    '97c9ab904f4aeadba33c8efc1c967b08',
-        redirect_uri: 'http://localhost:9292/connected'
+        client_id: client_id
       },
       player,
       playlistManager;
@@ -14,6 +13,5 @@
 
   $('#add').addEventListener('click', playlistManager.addSoundEvent);
   $('#stop').addEventListener('click', player.stopAll);
-
 
 })();
